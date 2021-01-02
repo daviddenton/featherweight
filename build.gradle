@@ -59,13 +59,13 @@ configurations {
     runtime.exclude group: "org.jetbrains.kotlin", module: "kotlin-reflect"
 }
 
-mainClassName = "featherweight.FeatherweightApp"
+mainClassName = "featherweight.FeatherweightMainKt"
 apply plugin: 'com.github.johnrengelman.shadow'
 
 shadowJar {
-    baseName = project.name
-    classifier = null
-    version = null
+    archiveBaseName = project.name
+    archiveClassifier = null
+    archiveVersion = null
     mergeServiceFiles()
 }
 
