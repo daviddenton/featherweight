@@ -4,7 +4,7 @@ RUN gu install native-image
 COPY . /home/app/featherweight
 WORKDIR /home/app/featherweight
 
-RUN native-image --no-fallback --no-server -cp build/libs/featherweight.jar -jar build/libs/featherweight.jar
+RUN native-image --no-fallback --enable-url-protocols=https --no-server -cp build/libs/featherweight.jar -jar build/libs/featherweight.jar
 
 FROM frolvlad/alpine-glibc
 RUN apk update && apk add libstdc++
