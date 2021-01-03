@@ -1,7 +1,7 @@
 package env
 
 import dev.forkhandles.result4k.get
-import featherweight.FeatherweightApp
+import hg2g.HitchhikersGuideApp
 import org.http4k.client.JavaHttpClient
 import org.http4k.cloudnative.env.Environment
 import org.http4k.connect.amazon.kms.FakeKMS
@@ -47,5 +47,5 @@ fun main() {
         "AWS_ACCESS_KEY_ID" to "accessKeyId",
         "AWS_SECRET_ACCESS_KEY" to "secretAccessKey"
     )
-    FeatherweightApp(env, JavaHttpClient(), clock).asServer(SunHttp(8080)).start()
+    HitchhikersGuideApp(env, JavaHttpClient(), clock).asServer(SunHttp(8080)).start()
 }

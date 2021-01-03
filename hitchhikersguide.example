@@ -1,0 +1,5 @@
+# set these environmental variables to run HitchhikersGuide, and then rename this file to http4kbox.env
+
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=xyz
+AWS_SECRET_KEY=ayz
