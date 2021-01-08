@@ -28,6 +28,7 @@ import org.http4k.core.HttpHandler
 import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status
+import org.http4k.filter.debug
 import org.http4k.routing.bind
 import org.http4k.routing.header
 import org.http4k.routing.routes
@@ -64,8 +65,8 @@ fun main() {
         "AWS_SECRET_ACCESS_KEY" to "secretAccessKey",
         "SUBMISSION_QUEUE" to queueName.value,
         "AWS_ACCOUNT" to awsAccount.value,
-        "API_KEY_SECRET_ID" to keyId.value,
-        "SIGNING_KEY_ID_PARAMETER" to secretName,
+        "API_KEY_SECRET_ID" to secretName,
+        "SIGNING_KEY_ID_PARAMETER" to keyId.value,
         "TRANSLATOR_LAMBDA" to lambdaName.value,
     )
 
@@ -75,7 +76,7 @@ fun main() {
         SystemsManager to systemsManager,
         Lambda to lambda,
         SQS to sqs
-    )
+    ).debug()
     HitchhikersGuideApp(env, http, clock).asServer(SunHttp(8080))
 }
 
