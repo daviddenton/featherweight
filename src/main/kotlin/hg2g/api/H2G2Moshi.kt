@@ -1,7 +1,6 @@
 package hg2g.api
 
 import com.squareup.moshi.Moshi
-import hg2g.KotshiArticleJsonAdapter
 import org.http4k.format.AwsJsonAdapterFactory
 import org.http4k.format.ConfigurableMoshi
 import org.http4k.format.adapter

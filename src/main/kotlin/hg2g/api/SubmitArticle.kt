@@ -1,4 +1,4 @@
-package hg2g
+package hg2g.api
 
 import dev.forkhandles.result4k.get
 import dev.forkhandles.result4k.map

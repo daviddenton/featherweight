@@ -7,6 +7,7 @@ import hg2g.Settings.SIGNING_KEY_ID_PARAMETER
 import hg2g.Settings.SUBMISSION_QUEUE_ARN
 import hg2g.Settings.TRANSLATOR_LAMBDA
 import hg2g.api.ApiKeySecurity
+import hg2g.api.SubmitArticle
 import hg2g.external.KmsSigner
 import hg2g.external.LambdaBabelFish
 import hg2g.external.SigningSQSEditor

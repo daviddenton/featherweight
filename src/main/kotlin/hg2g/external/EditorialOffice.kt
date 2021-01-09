@@ -3,7 +3,7 @@ package hg2g.external
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.flatMap
 import dev.forkhandles.result4k.map
-import hg2g.Language
+import hg2g.api.Language
 import org.http4k.connect.RemoteFailure
 import org.http4k.connect.amazon.model.ARN
 import org.http4k.connect.amazon.sqs.SQS
