@@ -15,6 +15,7 @@ import org.http4k.connect.amazon.model.FunctionName
 import org.http4k.connect.amazon.model.ParameterType
 import org.http4k.connect.amazon.model.QueueName
 import org.http4k.connect.amazon.model.Region
+import org.http4k.connect.amazon.model.SSMParameterName
 import org.http4k.connect.amazon.secretsmanager.FakeSecretsManager
 import org.http4k.connect.amazon.secretsmanager.SecretsManager
 import org.http4k.connect.amazon.secretsmanager.createSecret
@@ -25,6 +26,7 @@ import org.http4k.connect.amazon.systemsmanager.FakeSystemsManager
 import org.http4k.connect.amazon.systemsmanager.SystemsManager
 import org.http4k.connect.amazon.systemsmanager.putParameter
 import org.http4k.core.HttpHandler
+import org.http4k.core.Method.POST
 import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status
@@ -32,8 +34,6 @@ import org.http4k.filter.debug
 import org.http4k.routing.bind
 import org.http4k.routing.header
 import org.http4k.routing.routes
-import org.http4k.server.SunHttp
-import org.http4k.server.asServer
 import java.time.Clock
 import java.util.UUID
 
@@ -49,15 +49,17 @@ fun main() {
 
     val sqs = FakeSQS(clock = clock, awsAccount = awsAccount)
     val kms = FakeKMS(clock = clock)
-    val lambda = FakeLambda(lambdaName to { _: Request -> Response(Status.OK) }, clock = clock)
+    val lambda = FakeLambda(lambdaName to { Response(Status.OK).body("""{"text":"hello"}""") }, clock = clock)
     val systemsManager = FakeSystemsManager(clock = clock)
     val secretsManager = FakeSecretsManager(clock = clock)
+    val apiKey = "secretValue"
+    val keyParameter = SSMParameterName.of("myParameter")
 
     // setup infra
     sqs.client().createQueue(queueName, emptyMap(), emptyMap())
     val keyId = kms.client().createKey(SYMMETRIC_DEFAULT).valueOrNull()!!.KeyMetadata.KeyId
-    secretsManager.client().createSecret(secretName, UUID.randomUUID(), "secretValue")
-    systemsManager.client().putParameter("myParameter", "myParamValue", ParameterType.String)
+    secretsManager.client().createSecret(secretName, UUID.randomUUID(), apiKey)
+    systemsManager.client().putParameter(keyParameter, keyId.value, ParameterType.String)
 
     val env = Environment.from(
         "AWS_REGION" to region.value,
@@ -66,7 +68,7 @@ fun main() {
         "SUBMISSION_QUEUE" to queueName.value,
         "AWS_ACCOUNT" to awsAccount.value,
         "API_KEY_SECRET_ID" to secretName,
-        "SIGNING_KEY_ID_PARAMETER" to keyId.value,
+        "SIGNING_KEY_ID_PARAMETER" to keyParameter.value,
         "TRANSLATOR_LAMBDA" to lambdaName.value,
     )
 
@@ -77,7 +79,18 @@ fun main() {
         Lambda to lambda,
         SQS to sqs
     ).debug()
-    HitchhikersGuideApp(env, http, clock).asServer(SunHttp(8080))
+    val app = HitchhikersGuideApp(env, http, clock)
+
+    app.debug()(
+        Request(POST, "/submit/bob")
+            .header("Api-key", apiKey)
+            .body("""
+                {
+                    "language": "Universal",
+                    "text": "Earth: Mostly Harmless"
+                }
+            """.trimIndent())
+    )
 }
 
 fun Hosts(vararg services: Pair<AwsServiceCompanion, HttpHandler>) = routes(

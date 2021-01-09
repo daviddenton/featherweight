@@ -14,13 +14,13 @@ fun interface BabelFish {
     fun translate(source: String): Result<String, RemoteFailure>
 }
 
-data class Native(val value: String)
-data class UniversalLanguage(val value: String)
+data class Native(val text: String)
+data class UniversalLanguage(val text: String)
 
 /**
  * BabelFish deployed into AWS Lambda.
  */
 fun LambdaBabelFish(lambda: Lambda, functionName: FunctionName) = BabelFish { message ->
     lambda.invokeFunction<UniversalLanguage>(functionName, Native(message))
-        .map { it.value }
+        .map { it.text }
 }

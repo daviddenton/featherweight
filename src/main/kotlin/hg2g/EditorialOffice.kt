@@ -14,7 +14,7 @@ import org.http4k.connect.amazon.sqs.sendMessage
  * The EditorialOffice accepts translated article for publishing.
  */
 fun interface EditorialOffice {
-    fun submitArticle(researcherName: String, article: String): Result<Unit, RemoteFailure>
+    fun submitArticle(researcherName: String, language: Language, article: String): Result<Unit, RemoteFailure>
 }
 
 /**
@@ -25,8 +25,8 @@ fun SigningSQSEditor(
     signer: Signer,
     sqs: SQS,
     awsAccount: AwsAccount,
-    submissionQueueName: QueueName) = EditorialOffice { researcherName, article ->
-    signer.sign(article + researcherName)
+    submissionQueueName: QueueName) = EditorialOffice { researcherName, language, article ->
+    signer.sign(contentToSign(researcherName, language, article))
         .flatMap { signature ->
             sqs.sendMessage(awsAccount, submissionQueueName,
                 article,
@@ -38,3 +38,6 @@ fun SigningSQSEditor(
         }
         .map { Unit }
 }
+
+private fun contentToSign(researcherName: String, language: Language, article: String) =
+    researcherName + ":" + language + ":" + article.length

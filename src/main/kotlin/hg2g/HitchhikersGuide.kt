@@ -24,6 +24,7 @@ import org.http4k.connect.amazon.model.AwsAccount
 import org.http4k.connect.amazon.model.FunctionName
 import org.http4k.connect.amazon.model.QueueName
 import org.http4k.connect.amazon.model.Region
+import org.http4k.connect.amazon.model.SSMParameterName
 import org.http4k.connect.amazon.model.SecretId
 import org.http4k.connect.amazon.secretsmanager.Http
 import org.http4k.connect.amazon.secretsmanager.SecretsManager
@@ -34,6 +35,7 @@ import org.http4k.connect.amazon.systemsmanager.SystemsManager
 import org.http4k.core.HttpHandler
 import org.http4k.core.then
 import org.http4k.filter.ClientFilters.SetHostFrom
+import org.http4k.filter.ServerFilters.CatchAll
 import org.http4k.lens.composite
 import org.http4k.lens.uri
 import org.http4k.routing.routes
@@ -47,7 +49,7 @@ object Settings {
         )
     }
     val AWS_REGION = EnvironmentKey.map(Region::of).required("AWS_REGION")
-    val SIGNING_KEY_ID_PARAMETER = EnvironmentKey.required("SIGNING_KEY_ID_PARAMETER")
+    val SIGNING_KEY_ID_PARAMETER = EnvironmentKey.map(SSMParameterName::of).required("SIGNING_KEY_ID_PARAMETER")
     val API_KEY_SECRET_ID = EnvironmentKey.map(SecretId::of).required("API_KEY_SECRET_ID")
     val TRANSLATOR_LAMBDA = EnvironmentKey.map(FunctionName::of).required("TRANSLATOR_LAMBDA")
     val AWS_ACCOUNT = EnvironmentKey.map(AwsAccount::of).required("AWS_ACCOUNT")
@@ -71,7 +73,9 @@ fun HitchhikersGuideApp(env: Environment, http: HttpHandler, clock: Clock): Http
     val sqs = SQS.Http(AWS_REGION(env), { AWS_CREDENTIALS(env) }, SetHostFrom(SQS_URL(env)).then(http), clock)
     val lambda = Lambda.Http(AWS_REGION(env), { AWS_CREDENTIALS(env) }, SetHostFrom(LAMBDA_URL(env)).then(http), clock)
 
-    return ApiKeySecurity(sm, API_KEY_SECRET_ID(env))
+    return CatchAll()
+//        .then(CatchLensFailure())
+        .then(ApiKeySecurity(sm, API_KEY_SECRET_ID(env)))
         .then(
             routes(
                 SubmitArticle(

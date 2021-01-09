@@ -13,9 +13,11 @@ import org.http4k.format.Moshi.auto
 import org.http4k.routing.bind
 import org.http4k.routing.path
 
-data class Article(
-    val language: String,
-    val value: String)
+enum class Language {
+    Universal, EarthSpeak
+}
+
+data class Article(val language: Language, val text: String)
 
 private val body = Body.auto<Article>().toLens()
 
@@ -23,9 +25,10 @@ private val body = Body.auto<Article>().toLens()
  * Endpoint to accept an article submission which will be translated into the universal
  */
 fun SubmitArticle(babelFish: BabelFish, editorialOffice: EditorialOffice) =
-    "/submit/{name}" bind POST to { req: Request ->
-        babelFish.translate(body(req).value)
-            .map { editorialOffice.submitArticle(req.path("name")!!, it) }
+    "/submit/{fieldResearcher}" bind POST to { req: Request ->
+        val article = body(req)
+        babelFish.translate(article.text)
+            .map { editorialOffice.submitArticle(req.path("fieldResearcher")!!, article.language, it) }
             .map { Response(ACCEPTED) }
             .mapFailure { Response(BAD_GATEWAY) }
             .get()

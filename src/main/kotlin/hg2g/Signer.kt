@@ -8,6 +8,7 @@ import org.http4k.connect.amazon.kms.KMS
 import org.http4k.connect.amazon.kms.sign
 import org.http4k.connect.amazon.model.Base64Blob
 import org.http4k.connect.amazon.model.KMSKeyId
+import org.http4k.connect.amazon.model.SSMParameterName
 import org.http4k.connect.amazon.model.SigningAlgorithm.ECDSA_SHA_256
 import org.http4k.connect.amazon.systemsmanager.SystemsManager
 import org.http4k.connect.amazon.systemsmanager.getParameter
@@ -22,7 +23,7 @@ fun interface Signer {
 /**
  * AWS KMS implementation of the Signer.
  */
-fun KmsSigner(kms: KMS, systemsManager: SystemsManager, keyParameterName: String) = Signer { message ->
+fun KmsSigner(kms: KMS, systemsManager: SystemsManager, keyParameterName: SSMParameterName) = Signer { message ->
     systemsManager.getParameter(keyParameterName)
         .map { KMSKeyId.of(it.Parameter.Value!!) }
         .flatMap { kms.sign(it, Base64Blob.encoded(message), ECDSA_SHA_256) }
