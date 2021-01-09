@@ -1,4 +1,4 @@
-package hg2g
+package hg2g.external
 
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.flatMap

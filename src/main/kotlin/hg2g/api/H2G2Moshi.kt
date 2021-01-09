@@ -1,9 +1,10 @@
-package hg2g
+package hg2g.api
 
 import com.squareup.moshi.Moshi
-import org.http4k.connect.adapter
+import hg2g.KotshiArticleJsonAdapter
 import org.http4k.format.AwsJsonAdapterFactory
 import org.http4k.format.ConfigurableMoshi
+import org.http4k.format.adapter
 import org.http4k.format.asConfigurable
 
 object H2G2Moshi : ConfigurableMoshi(Moshi.Builder()

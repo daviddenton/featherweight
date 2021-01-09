@@ -6,6 +6,10 @@ import hg2g.Settings.AWS_REGION
 import hg2g.Settings.SIGNING_KEY_ID_PARAMETER
 import hg2g.Settings.SUBMISSION_QUEUE_ARN
 import hg2g.Settings.TRANSLATOR_LAMBDA
+import hg2g.api.ApiKeySecurity
+import hg2g.external.KmsSigner
+import hg2g.external.LambdaBabelFish
+import hg2g.external.SigningSQSEditor
 import org.http4k.aws.AwsCredentials
 import org.http4k.cloudnative.env.Environment
 import org.http4k.cloudnative.env.EnvironmentKey

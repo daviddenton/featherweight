@@ -1,4 +1,4 @@
-package hg2g
+package hg2g.api
 
 import dev.forkhandles.result4k.valueOrNull
 import org.http4k.connect.amazon.model.SecretId
