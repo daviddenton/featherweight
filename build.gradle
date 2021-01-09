@@ -58,7 +58,7 @@ dependencies {
 }
 
 configurations {
-    runtime.exclude group: "org.jetbrains.kotlin", module: "kotlin-reflect"
+    runtime.exclude group: "com.squareup.moshi", module: "moshi-kotlin"
 }
 
 mainClassName = "hg2g.HitchhikersGuideMainKt"

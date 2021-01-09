@@ -20,7 +20,7 @@ data class UniversalLanguage(val text: String)
 /**
  * BabelFish deployed into AWS Lambda.
  */
-fun LambdaBabelFish(lambda: Lambda, functionName: FunctionName) = BabelFish { message ->
+fun LambdaBabelFish(functionName: FunctionName, lambda: Lambda) = BabelFish { message ->
     lambda.invokeFunction<UniversalLanguage>(functionName, Native(message))
         .map { it.text }
 }

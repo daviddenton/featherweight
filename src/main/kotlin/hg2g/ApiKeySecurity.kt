@@ -11,7 +11,7 @@ import org.http4k.lens.Header
 /**
  * Get the API Key from the Secretsmanager and use it to vet the incoming requests
  */
-fun ApiKeySecurity(secretsManager: SecretsManager, secretId: SecretId): Filter {
+fun ApiKeySecurity(secretId: SecretId, secretsManager: SecretsManager): Filter {
     val apiKey = secretsManager.loadApiKey(secretId)
     return ServerFilters.ApiKeyAuth(Header.required("Api-Key")) { it == apiKey }
 }

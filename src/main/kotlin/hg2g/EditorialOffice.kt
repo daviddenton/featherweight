@@ -4,8 +4,7 @@ import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.flatMap
 import dev.forkhandles.result4k.map
 import org.http4k.connect.RemoteFailure
-import org.http4k.connect.amazon.model.AwsAccount
-import org.http4k.connect.amazon.model.QueueName
+import org.http4k.connect.amazon.model.ARN
 import org.http4k.connect.amazon.sqs.SQS
 import org.http4k.connect.amazon.sqs.action.MessageAttribute
 import org.http4k.connect.amazon.sqs.sendMessage
@@ -22,13 +21,13 @@ fun interface EditorialOffice {
  * We need to cryptographically sign the contents with the researcher's name.
  */
 fun SigningSQSEditor(
-    signer: Signer,
+    queueArn: ARN,
     sqs: SQS,
-    awsAccount: AwsAccount,
-    submissionQueueName: QueueName) = EditorialOffice { researcherName, language, article ->
+    signer: Signer
+) = EditorialOffice { researcherName, language, article ->
     signer.sign(contentToSign(researcherName, language, article))
         .flatMap { signature ->
-            sqs.sendMessage(awsAccount, submissionQueueName,
+            sqs.sendMessage(queueArn,
                 article,
                 attributes = listOf(
                     MessageAttribute("signature", signature, "String"),
