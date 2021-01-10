@@ -19,7 +19,7 @@ fun interface EditorialOffice {
 
 /**
  * SQS implementation of the EditorialOffice.
- * We need to cryptographically sign the contents with the researcher's name.
+ * We need to cryptographically sign the contents with the researcher's name and language.
  */
 fun SigningSQSEditor(
     queueArn: ARN,
@@ -28,7 +28,8 @@ fun SigningSQSEditor(
 ) = EditorialOffice { researcherName, language, article ->
     signer.sign(contentToSign(researcherName, language, article))
         .flatMap { signature ->
-            sqs.sendMessage(queueArn,
+            sqs.sendMessage(
+                queueArn,
                 article,
                 attributes = listOf(
                     MessageAttribute("signature", signature, "String"),
@@ -36,7 +37,7 @@ fun SigningSQSEditor(
                 )
             )
         }
-        .map { Unit }
+        .map { }
 }
 
 private fun contentToSign(researcherName: String, language: Language, article: String) =

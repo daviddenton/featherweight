@@ -44,7 +44,8 @@ object Settings {
     val AWS_CREDENTIALS = EnvironmentKey.composite {
         AwsCredentials(AWS_ACCESS_KEY_ID(it), AWS_SECRET_ACCESS_KEY(it))
     }
-    val SIGNING_KEY_ID_PARAMETER = EnvironmentKey.map(SSMParameterName::of, SSMParameterName::value).required("SIGNING_KEY_ID_PARAMETER")
+    val SIGNING_KEY_ID_PARAMETER =
+        EnvironmentKey.map(SSMParameterName::of, SSMParameterName::value).required("SIGNING_KEY_ID_PARAMETER")
     val API_KEY_SECRET_ID = EnvironmentKey.map(SecretId::of, SecretId::value).required("API_KEY_SECRET_ID")
     val TRANSLATOR_LAMBDA = EnvironmentKey.map(FunctionName::of, FunctionName::value).required("TRANSLATOR_LAMBDA")
     val SUBMISSION_QUEUE_ARN = EnvironmentKey.map(ARN::of, ARN::value).required("SUBMISSION_QUEUE_ARN")
@@ -70,7 +71,8 @@ fun HitchhikersGuideApp(env: Environment, http: HttpHandler, clock: Clock = Cloc
             routes(
                 SubmitArticle(
                     LambdaBabelFish(TRANSLATOR_LAMBDA(env), lambda),
-                    SigningSQSEditor(SUBMISSION_QUEUE_ARN(env), sqs, KmsSigner(kms, ssm, SIGNING_KEY_ID_PARAMETER(env))))
+                    SigningSQSEditor(SUBMISSION_QUEUE_ARN(env), sqs, KmsSigner(kms, ssm, SIGNING_KEY_ID_PARAMETER(env)))
+                )
             )
         )
 }
