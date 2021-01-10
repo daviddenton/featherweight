@@ -61,8 +61,6 @@ fun main() {
     val keyId = kms.client().createKey(SYMMETRIC_DEFAULT).valueOrNull()!!.KeyMetadata.KeyId
     systemsManager.client().putParameter(keyParameter, keyId.value, ParameterType.String)
 
-    val queueArn = ARN.of(SQS.awsService, region, awsAccount, queueName)
-
     val env = Environment.defaults(
         DEBUG of true,
         AWS_REGION of region,
@@ -71,7 +69,7 @@ fun main() {
         API_KEY_SECRET_ID of secretName,
         SIGNING_KEY_ID_PARAMETER of keyParameter,
         TRANSLATOR_LAMBDA of lambdaName,
-        SUBMISSION_QUEUE_ARN of queueArn,
+        SUBMISSION_QUEUE_ARN of ARN.of(SQS.awsService, region, awsAccount, queueName),
     )
 
     val app = HitchhikersGuideApp(
