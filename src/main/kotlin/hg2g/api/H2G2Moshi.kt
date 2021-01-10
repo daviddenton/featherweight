@@ -1,14 +1,14 @@
 package hg2g.api
 
-import com.squareup.moshi.Moshi
-import org.http4k.format.AwsJsonAdapterFactory
+import com.squareup.moshi.Moshi.Builder
 import org.http4k.format.ConfigurableMoshi
+import org.http4k.format.SimpleMoshiAdapterFactory
 import org.http4k.format.adapter
 import org.http4k.format.asConfigurable
 
-object H2G2Moshi : ConfigurableMoshi(Moshi.Builder()
-    // todo replace with http4k adapter factory
-    .add(object : AwsJsonAdapterFactory(adapter(::KotshiArticleJsonAdapter)) {})
-    .asConfigurable()
-    .done()
+object H2G2Moshi : ConfigurableMoshi(
+    Builder()
+        .add(SimpleMoshiAdapterFactory(adapter(::KotshiArticleJsonAdapter)))
+        .asConfigurable()
+        .done()
 )

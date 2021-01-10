@@ -11,6 +11,7 @@ import hg2g.Settings.SIGNING_KEY_ID_PARAMETER
 import hg2g.Settings.SUBMISSION_QUEUE_ARN
 import hg2g.Settings.TRANSLATOR_LAMBDA
 import org.http4k.cloudnative.env.Environment
+import org.http4k.connect.amazon.AwsReverseProxy
 import org.http4k.connect.amazon.kms.FakeKMS
 import org.http4k.connect.amazon.kms.KMS
 import org.http4k.connect.amazon.kms.createKey
@@ -88,12 +89,14 @@ fun main() {
     app.debug()(
         Request(POST, "/submit/bob")
             .header("Api-key", apiKey)
-            .body("""
+            .body(
+                """
                 {
                     "language": "Universal",
                     "text": "Earth: Mostly Harmless"
                 }
-            """.trimIndent())
+            """.trimIndent()
+            )
     )
 
     // print editorial queue messages

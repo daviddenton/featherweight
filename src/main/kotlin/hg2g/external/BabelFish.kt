@@ -14,9 +14,6 @@ fun interface BabelFish {
     fun translate(source: String): Result<String, RemoteFailure>
 }
 
-data class Native(val text: String)
-data class UniversalLanguage(val text: String)
-
 /**
  * BabelFish deployed into AWS Lambda.
  */
@@ -24,3 +21,6 @@ fun LambdaBabelFish(functionName: FunctionName, lambda: Lambda) = BabelFish { me
     lambda.invokeFunction<UniversalLanguage>(functionName, Native(message))
         .map { it.text }
 }
+
+data class Native(val text: String)
+data class UniversalLanguage(val text: String)

@@ -14,16 +14,6 @@ import org.http4k.core.Status.Companion.ACCEPTED
 import org.http4k.core.Status.Companion.BAD_GATEWAY
 import org.http4k.routing.bind
 import org.http4k.routing.path
-import se.ansman.kotshi.JsonSerializable
-
-enum class Language {
-    Universal, EarthSpeak
-}
-
-@JsonSerializable
-data class Article(val language: Language, val text: String)
-
-private val articleBody = Body.auto<Article>().toLens()
 
 /**
  * Endpoint to accept an article submission which will be translated into the universal
@@ -37,3 +27,5 @@ fun SubmitArticle(babelFish: BabelFish, editorialOffice: EditorialOffice) =
             .mapFailure { Response(BAD_GATEWAY) }
             .get()
     }
+
+private val articleBody = Body.auto<Article>().toLens()
