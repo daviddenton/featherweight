@@ -33,7 +33,8 @@ fun SigningSQSEditor(
                 article,
                 attributes = listOf(
                     MessageAttribute("signature", signature, "String"),
-                    MessageAttribute("researcher", researcherName, "String")
+                    MessageAttribute("researcher", researcherName, "String"),
+                    MessageAttribute("language", language.name, "String")
                 )
             )
         }
