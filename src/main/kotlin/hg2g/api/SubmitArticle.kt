@@ -3,7 +3,7 @@ package hg2g.api
 import dev.forkhandles.result4k.get
 import dev.forkhandles.result4k.map
 import dev.forkhandles.result4k.mapFailure
-import hg2g.api.H2G2Moshi.auto
+import hg2g.H2G2Moshi.auto
 import hg2g.external.BabelFish
 import hg2g.external.EditorialOffice
 import org.http4k.core.Body

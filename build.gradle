@@ -42,6 +42,7 @@ dependencies {
     implementation("org.http4k:http4k-connect-amazon-secretsmanager")
     implementation("org.http4k:http4k-connect-amazon-sqs")
     implementation("org.http4k:http4k-connect-amazon-systemsmanager")
+    implementation("org.slf4j:slf4j-nop:1.7.30")
 
     implementation("se.ansman.kotshi:api:$kotshi_version")
     kapt("se.ansman.kotshi:compiler:$kotshi_version")

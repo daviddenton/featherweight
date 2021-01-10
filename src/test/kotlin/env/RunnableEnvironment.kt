@@ -7,9 +7,11 @@ import hg2g.Settings.API_KEY_SECRET_ID
 import hg2g.Settings.AWS_ACCESS_KEY_ID
 import hg2g.Settings.AWS_REGION
 import hg2g.Settings.AWS_SECRET_ACCESS_KEY
+import hg2g.Settings.DEBUG
 import hg2g.Settings.SIGNING_KEY_ID_PARAMETER
 import hg2g.Settings.SUBMISSION_QUEUE_ARN
 import hg2g.Settings.TRANSLATOR_LAMBDA
+import hg2g.api.Language.EarthSpeak
 import org.http4k.cloudnative.env.Environment
 import org.http4k.connect.amazon.AwsReverseProxy
 import org.http4k.connect.amazon.kms.FakeKMS
@@ -32,19 +34,12 @@ import org.http4k.connect.amazon.secretsmanager.createSecret
 import org.http4k.connect.amazon.sqs.FakeSQS
 import org.http4k.connect.amazon.sqs.SQS
 import org.http4k.connect.amazon.sqs.createQueue
-import org.http4k.connect.amazon.sqs.receiveMessage
 import org.http4k.connect.amazon.systemsmanager.FakeSystemsManager
 import org.http4k.connect.amazon.systemsmanager.SystemsManager
 import org.http4k.connect.amazon.systemsmanager.putParameter
-import org.http4k.core.Method.POST
-import org.http4k.core.Request
-import org.http4k.core.Response
-import org.http4k.core.Status
-import org.http4k.filter.debug
 import java.util.UUID
 
 fun main() {
-
     val region = Region.of("ldn-north-1")
     val queueName = QueueName.of("editorialQueue")
     val awsAccount = AwsAccount.of("1234567890")
@@ -53,11 +48,12 @@ fun main() {
     val apiKey = "secretValue"
     val keyParameter = SSMParameterName.of("myParameter")
 
-    val sqs = FakeSQS(awsAccount = awsAccount)
+    val babelFish = FakeBabelFish()
     val kms = FakeKMS()
-    val lambda = FakeLambda(lambdaName to { Response(Status.OK).body("""{"text":"hello"}""") })
-    val systemsManager = FakeSystemsManager()
+    val lambda = FakeLambda(lambdaName to babelFish)
+    val sqs = FakeSQS(awsAccount = awsAccount)
     val secretsManager = FakeSecretsManager()
+    val systemsManager = FakeSystemsManager()
 
     // setup environment
     sqs.client().createQueue(queueName, emptyMap(), emptyMap())
@@ -68,6 +64,7 @@ fun main() {
     val queueArn = ARN.of(SQS.awsService, region, awsAccount, queueName)
 
     val env = Environment.defaults(
+        DEBUG of true,
         AWS_REGION of region,
         AWS_ACCESS_KEY_ID of "accessKeyId",
         AWS_SECRET_ACCESS_KEY of "secretAccessKey",
@@ -77,28 +74,19 @@ fun main() {
         SUBMISSION_QUEUE_ARN of queueArn,
     )
 
-    val http = AwsReverseProxy(
-        KMS to kms,
-        SecretsManager to secretsManager,
-        SystemsManager to systemsManager,
-        Lambda to lambda,
-        SQS to sqs
-    ).debug()
-    val app = HitchhikersGuideApp(env, http)
-
-    app.debug()(
-        Request(POST, "/submit/bob")
-            .header("Api-key", apiKey)
-            .body(
-                """
-                {
-                    "language": "Universal",
-                    "text": "Earth: Mostly Harmless"
-                }
-            """.trimIndent()
-            )
+    val app = HitchhikersGuideApp(
+        env,
+        AwsReverseProxy(
+            KMS to kms,
+            SecretsManager to secretsManager,
+            SystemsManager to systemsManager,
+            Lambda to lambda,
+            SQS to sqs
+        )
     )
 
-    // print editorial queue messages
-    sqs.client().receiveMessage(queueArn).map { it.forEach { println(it) } }
+    FieldResearcher(app, apiKey, "Ford Prefect", EarthSpeak)
+        .submitArticle("Earth", "Mostly Harmless")
+
+    GuideEditor(sqs, env).lookAtInbox().map { it.forEach(::println) }
 }

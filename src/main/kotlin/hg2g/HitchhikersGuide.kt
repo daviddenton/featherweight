@@ -3,6 +3,7 @@ package hg2g
 import hg2g.Settings.API_KEY_SECRET_ID
 import hg2g.Settings.AWS_CREDENTIALS
 import hg2g.Settings.AWS_REGION
+import hg2g.Settings.DEBUG
 import hg2g.Settings.SIGNING_KEY_ID_PARAMETER
 import hg2g.Settings.SUBMISSION_QUEUE_ARN
 import hg2g.Settings.TRANSLATOR_LAMBDA
@@ -33,6 +34,8 @@ import org.http4k.core.HttpHandler
 import org.http4k.core.then
 import org.http4k.filter.ServerFilters.CatchAll
 import org.http4k.filter.ServerFilters.CatchLensFailure
+import org.http4k.filter.debug
+import org.http4k.lens.boolean
 import org.http4k.lens.composite
 import org.http4k.routing.routes
 import java.time.Clock
@@ -44,6 +47,8 @@ object Settings {
     val AWS_CREDENTIALS = EnvironmentKey.composite {
         AwsCredentials(AWS_ACCESS_KEY_ID(it), AWS_SECRET_ACCESS_KEY(it))
     }
+    val DEBUG = EnvironmentKey.boolean().defaulted("DEBUG", false)
+
     val SIGNING_KEY_ID_PARAMETER =
         EnvironmentKey.map(SSMParameterName::of, SSMParameterName::value).required("SIGNING_KEY_ID_PARAMETER")
     val API_KEY_SECRET_ID = EnvironmentKey.map(SecretId::of, SecretId::value).required("API_KEY_SECRET_ID")
@@ -54,7 +59,9 @@ object Settings {
 /**
  * Our main HTTP API.
  */
-fun HitchhikersGuideApp(env: Environment, http: HttpHandler, clock: Clock = Clock.systemDefaultZone()): HttpHandler {
+fun HitchhikersGuideApp(env: Environment, rawHttp: HttpHandler, clock: Clock = Clock.systemDefaultZone()): HttpHandler {
+    val http = if(DEBUG(env)) rawHttp.debug() else rawHttp
+
     val awsCredentials = { AWS_CREDENTIALS(env) }
     val region = AWS_REGION(env)
 
