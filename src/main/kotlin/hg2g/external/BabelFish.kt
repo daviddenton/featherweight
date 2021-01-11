@@ -2,6 +2,7 @@ package hg2g.external
 
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.map
+import hg2g.H2G2Moshi
 import org.http4k.connect.RemoteFailure
 import org.http4k.connect.amazon.lambda.Lambda
 import org.http4k.connect.amazon.lambda.action.invokeFunction
@@ -19,7 +20,7 @@ fun interface BabelFish {
  * BabelFish deployed into AWS Lambda.
  */
 fun LambdaBabelFish(functionName: FunctionName, lambda: Lambda) = BabelFish { message ->
-    lambda.invokeFunction<TranslationText>(functionName, TranslationText(message))
+    lambda.invokeFunction<TranslationText>(functionName, TranslationText(message), H2G2Moshi)
         .map { it.text }
 }
 
